@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from user.API.views import LogoutView, RegisterView, UserProfileView
+from .views import LogoutView, RegisterView, UserProfileView
 
 urlpatterns = [
     # JWT endpoints
