@@ -5,4 +5,4 @@ migrate:
 	python3 manage.py migrate
 
 admin:
-	python manage.py createsuperuser
+	python3 manage.py createsuperuser
