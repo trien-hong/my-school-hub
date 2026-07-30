@@ -39,14 +39,15 @@ class RegisterView(APIView):
 
         serializer = RegisterSerializer(data=data)
 
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             user = serializer.save()
 
             payload = {
                 'user': {
                     'id': user.id,
                     'username': user.username,
-                    'email': user.email
+                    'email': user.email,
+                    'groups': [group.name for group in user.groups.all()]
                 },
             }
 
