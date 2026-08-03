@@ -1,5 +1,9 @@
 .venv
+
 .env
+
 db.sqlite3
-__pycache__/
+
 commands.sh
+
+__pycache__/
