@@ -7,10 +7,31 @@ User = get_user_model()
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
+    list_display = (
+        'username', 
+        'email', 
+        'first_name', 
+        'last_name', 
+        'user_invitation',
+        'is_staff', 
+        'is_active'
+    )
+
     list_filter = ('groups', 'is_staff', 'is_superuser', 'is_active')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('id',)
+
+    fieldsets = UserAdmin.fieldsets + (
+        ('Invitation Details', {
+            'fields': ('user_invitation',)
+        }),
+    )
+
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Invitation Details', {
+            'fields': ('user_invitation',)
+        }),
+    )
 
 @admin.register(UserInvitation)
 class UserInvitationAdmin(admin.ModelAdmin):

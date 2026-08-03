@@ -33,6 +33,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"invite_code": f"This invite code is not valid for the {group_role} role."})
 
         attrs['user_invitation'] = user_invitation
+
         return attrs
 
     def create(self, validated_data):
@@ -56,7 +57,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             user_invitation.save()
 
         return user
-
 
 class GenerateInviteSerializer(serializers.ModelSerializer):
     class Meta:
