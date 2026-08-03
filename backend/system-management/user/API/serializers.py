@@ -1,14 +1,18 @@
 from rest_framework import serializers
 from django.contrib.auth.models import Group
-from user.models import User, UserInvitation
+from django.contrib.auth import get_user_model
+from user.models import UserInvitation
+
+User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    invite_code = serializers.CharField(required=False, write_only=True)
     group = serializers.ChoiceField(choices=['Administrator', 'Faculty', 'Guardian', 'Student'], write_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'group']
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'invite_code', 'group']
 
     def validate(self, attrs):
         group_role = attrs.get('group')
@@ -21,30 +25,40 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"invite_code": f"An invite code is required to register as a {group_role}."})
 
         try:
-            invitation = UserInvitation.objects.get(invite_code=invite_code, is_used=False)
+            user_invitation = UserInvitation.objects.get(invite_code=invite_code, is_used=False)
         except UserInvitation.DoesNotExist:
             raise serializers.ValidationError({"invite_code": "This invite code is invalid or has already been used."})
 
-        if invitation.role_group != group_role:
+        if user_invitation.group_role != group_role:
             raise serializers.ValidationError({"invite_code": f"This invite code is not valid for the {group_role} role."})
 
-        attrs['invitation_obj'] = invitation
-
+        attrs['user_invitation'] = user_invitation
         return attrs
 
     def create(self, validated_data):
-        group = validated_data.pop('group', [])
+        validated_data.pop('invite_code', None)
+        group = validated_data.pop('group', None)
+        user_invitation = validated_data.pop('user_invitation', None)
 
-        user = User.objects.create_user(**validated_data)
+        if user_invitation:
+            user_invitation = UserInvitation.objects.select_for_update().get(id=user_invitation.id)
+            if user_invitation.is_used:
+                raise serializers.ValidationError({"invite_code": "This invite code was just used by another registration request."})
+
+        user = User.objects.create_user(user_invitation=user_invitation, **validated_data)
 
         if group:
             group = Group.objects.filter(name=group)
             user.groups.set(group)
 
+        if user_invitation:
+            user_invitation.is_used = True
+            user_invitation.save()
+
         return user
 
-class GenerateInviteSerializer(serializers.ModelSerializer):
 
+class GenerateInviteSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInvitation
         fields = '__all__'
@@ -68,8 +82,6 @@ class GenerateInviteSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        user = self.context.get('request').user
-
-        validated_data['created_by'] = user
+        validated_data['created_by'] = self.context.get('request').user
 
         return super().create(validated_data)
