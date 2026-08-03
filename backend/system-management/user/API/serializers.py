@@ -1,12 +1,14 @@
 from rest_framework import serializers
+from django.contrib.auth.models import Group
 from user.models import User, UserInvitation
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    group = serializers.ChoiceField(choices=['Administrator', 'Faculty', 'Guardian', 'Student'], write_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'groups']
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'group']
 
     def validate(self, attrs):
         group_role = attrs.get('group')
@@ -31,12 +33,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        groups = validated_data.pop('groups', [])
+        group = validated_data.pop('group', [])
 
         user = User.objects.create_user(**validated_data)
 
-        if groups:
-            user.groups.set(groups)
+        if group:
+            group = Group.objects.filter(name=group)
+            user.groups.set(group)
 
         return user
 
