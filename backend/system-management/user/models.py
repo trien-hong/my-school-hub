@@ -12,7 +12,6 @@ class UserInvitation(models.Model):
     GROUP_ROLE_CHOICES = [
         ('Administrator', 'Administrator'),
         ('Faculty', 'Faculty'),
-        ('Guardian', 'Guardian'),
         ('Student', 'Student'),
     ]
 

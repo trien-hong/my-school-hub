@@ -42,7 +42,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user_invitation = validated_data.pop('user_invitation', None)
 
         if user_invitation:
-            user_invitation = UserInvitation.objects.select_for_update().get(id=user_invitation.id)
+            user_invitation = UserInvitation.objects.get(id=user_invitation.id)
             if user_invitation.is_used:
                 raise serializers.ValidationError({"invite_code": "This invite code was just used by another registration request."})
 
@@ -72,8 +72,8 @@ class GenerateInviteSerializer(serializers.ModelSerializer):
         user = request.user
         group_role = attrs.get('group_role')
 
-        if group_role == 'Administrator' and not user.groups.filter(name='IT').exists():
-            raise serializers.ValidationError({"group_role": "Only users in the IT group can create Administrator invites."})
+        if group_role == 'Administrator' and not user.groups.filter(name='IT Support').exists():
+            raise serializers.ValidationError({"group_role": "Only users in the IT Support group can create Administrator invites."})
         if group_role == 'Faculty' and not user.groups.filter(name='Administrator').exists():
             raise serializers.ValidationError({"group_role": "Only Administrators can create Faculty invites."})
         if group_role == 'Student' and not user.groups.filter(name='Guardian').exists():

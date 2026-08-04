@@ -4,6 +4,6 @@
 
 db.sqlite3
 
-commands.sh
+test.sh
 
 __pycache__/

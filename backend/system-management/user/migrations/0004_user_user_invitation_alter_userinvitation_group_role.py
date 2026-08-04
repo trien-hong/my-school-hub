@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userinvitation',
             name='group_role',
-            field=models.CharField(choices=[('Administrator', 'Administrator'), ('Faculty', 'Faculty'), ('Guardian', 'Guardian'), ('Student', 'Student')], max_length=13),
+            field=models.CharField(choices=[('Administrator', 'Administrator'), ('Faculty', 'Faculty'), ('Student', 'Student')], max_length=13),
         ),
     ]

@@ -10,7 +10,7 @@ urlpatterns = [
     # User endpoints
     path('auth/register/', RegisterView.as_view()),
     path('auth/profile/', UserProfileView.as_view()),
-    path('auth/logout/', LogoutView.as_view(), name='logout'),
+    path('auth/logout/', LogoutView.as_view()),
 
     path('internal/generate-invite/', GenerateInviteView.as_view()),
 ]
