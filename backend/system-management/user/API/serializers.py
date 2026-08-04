@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from user.models import UserInvitation
@@ -26,7 +27,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         try:
             user_invitation = UserInvitation.objects.get(invite_code=invite_code, is_used=False)
-        except UserInvitation.DoesNotExist:
+        except (UserInvitation.DoesNotExist, ValidationError, ValueError, TypeError):
             raise serializers.ValidationError({"invite_code": "This invite code is invalid or has already been used."})
 
         if user_invitation.group_role != group_role:

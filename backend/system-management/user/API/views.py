@@ -45,8 +45,6 @@ class RegisterView(APIView):
 
             return Response(payload, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class GenerateInviteView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -59,8 +57,6 @@ class GenerateInviteView(APIView):
             serializer.save()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
