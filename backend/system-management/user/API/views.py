@@ -1,11 +1,11 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, GenerateInviteSerializer
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -14,22 +14,14 @@ class LogoutView(APIView):
         try:
             refresh_token = request.data.get("refresh")
             if not refresh_token:
-                return Response(
-                    {"error": "Refresh token is required."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
 
             token = RefreshToken(refresh_token)
             token.blacklist()
 
-            return Response(
-                status=status.HTTP_205_RESET_CONTENT
-            )
+            return Response(status=status.HTTP_205_RESET_CONTENT)
         except TokenError:
-            return Response(
-                {"error": "Invalid or expired refresh token."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "Invalid or expired refresh token."}, status=status.HTTP_400_BAD_REQUEST)
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -53,7 +45,18 @@ class RegisterView(APIView):
 
             return Response(payload, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class GenerateInviteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+
+        serializer = GenerateInviteSerializer(data=data, context={'request': request})
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]

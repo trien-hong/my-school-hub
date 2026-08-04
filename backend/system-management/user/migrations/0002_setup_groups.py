@@ -5,7 +5,7 @@ from django.db import migrations
 def create_groups(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
 
-    GROUPS = ['Administrator', 'Faculty', 'Guardian', 'Student', 'IT']
+    GROUPS = ['Administrator', 'Faculty', 'Guardian', 'Student', 'IT Support']
 
     for group_name in GROUPS:
         Group.objects.get_or_create(name=group_name)
@@ -13,7 +13,7 @@ def create_groups(apps, schema_editor):
 def remove_groups(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
 
-    GROUPS = ['Administrator', 'Faculty', 'Guardian', 'Student', 'IT']
+    GROUPS = ['Administrator', 'Faculty', 'Guardian', 'Student', 'IT Support']
 
     Group.objects.filter(name__in=GROUPS).delete()
 
