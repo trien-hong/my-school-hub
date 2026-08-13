@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import LogoutView, RegisterView, UserProfileView, GenerateInviteView
+from .views import LogoutView, RegisterView, ProfileView, GenerateInviteView
 
 urlpatterns = [
     # JWT endpoints
@@ -8,9 +8,8 @@ urlpatterns = [
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # User endpoints
-    path('auth/register/', RegisterView.as_view()),
-    path('auth/profile/', UserProfileView.as_view()),
     path('auth/logout/', LogoutView.as_view()),
-
-    path('internal/generate-invite/', GenerateInviteView.as_view()),
+    path('auth/register/', RegisterView.as_view()),
+    path('auth/generate-invite/', GenerateInviteView.as_view()),
+    path('auth/profile/', ProfileView.as_view()),
 ]

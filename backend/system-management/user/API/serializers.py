@@ -86,3 +86,9 @@ class GenerateInviteSerializer(serializers.ModelSerializer):
         validated_data['created_by'] = self.context.get('request').user
 
         return super().create(validated_data)
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'last_login', 'username', 'first_name', 'last_name', 'email']
+        read_only_fields = ['id', 'last_login']

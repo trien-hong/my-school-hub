@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
-from .serializers import RegisterSerializer, GenerateInviteSerializer
+from .serializers import RegisterSerializer, GenerateInviteSerializer, ProfileSerializer
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -58,16 +58,34 @@ class GenerateInviteView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-class UserProfileView(APIView):
+class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
 
-        payload = {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email
-        }
+        serializer = ProfileSerializer(user)
 
-        return Response(payload, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        data = request.data
+        user = request.user
+
+        serializer = ProfileSerializer(user, data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        data = request.data
+        user = request.user
+
+        serializer = ProfileSerializer(user, data=data, partial=True)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
