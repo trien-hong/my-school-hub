@@ -8,7 +8,6 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { NavSectionMini, NavSectionVertical } from 'src/components/nav-section';
 
 import { layoutClasses } from '../core';
-import { NavUpgrade } from '../components/nav-upgrade';
 import { NavToggleButton } from '../components/nav-toggle-button';
 
 // ----------------------------------------------------------------------
@@ -28,8 +27,8 @@ export function NavVertical({
     const renderNavVertical = () => (
         <>
             {slots?.topArea ?? (
-                <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }}>
-                    <Logo />
+                <Box sx={{ pl: 3.5, pr: 3.5, height: 64, display: 'flex', alignItems: 'center', overflow: 'visible' }}>
+                    <Logo isSingle={false} sx={{ width: '100%', height: 56 }} />
                 </Box>
             )}
 
@@ -40,8 +39,6 @@ export function NavVertical({
                     checkPermissions={checkPermissions}
                     sx={{ px: 2, flex: '1 1 auto' }}
                 />
-
-                {slots?.bottomArea ?? <NavUpgrade />}
             </Scrollbar>
         </>
     );
@@ -49,8 +46,8 @@ export function NavVertical({
     const renderNavMini = () => (
         <>
             {slots?.topArea ?? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.5 }}>
-                    <Logo />
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 80, overflow: 'visible' }}>
+                    <Logo sx={{ width: 56, height: 56 }} />
                 </Box>
             )}
 

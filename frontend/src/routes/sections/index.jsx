@@ -4,7 +4,7 @@ import { Navigate } from 'react-router';
 import { CONFIG } from 'src/global-config';
 
 import { authRoutes } from './auth';
-import { dashboardRoutes } from './dashboard';
+import { dashboardRoutes } from './menu';
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ export const routesSection = [
     // Auth
     ...authRoutes,
 
-    // Dashboard
+    // Menu
     ...dashboardRoutes,
 
     // No match

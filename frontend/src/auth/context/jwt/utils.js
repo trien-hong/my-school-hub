@@ -1,8 +1,11 @@
 import { paths } from 'src/routes/paths';
 
-import axios from 'src/lib/axios';
+import axios, { endpoints } from 'src/lib/axios';
 
-import { JWT_STORAGE_KEY } from './constant';
+import { JWT_ACCESS_STORAGE_KEY, JWT_REFRESH_STORAGE_KEY } from './constant';
+
+// Tracks the pending expiration timer so repeated setSession calls don't stack up duplicate alerts/redirects.
+let expirationTimeoutId;
 
 // ----------------------------------------------------------------------
 
@@ -55,16 +58,45 @@ export function tokenExpired(exp) {
     const currentTime = Date.now();
     const timeLeft = exp * 1000 - currentTime;
 
-    setTimeout(() => {
+    if (expirationTimeoutId) {
+        clearTimeout(expirationTimeoutId);
+    }
+
+    expirationTimeoutId = setTimeout(async () => {
         try {
-            alert('Token expired!');
-            sessionStorage.removeItem(JWT_STORAGE_KEY);
+            const newAccessToken = await refreshAccessToken();
+
+            if (newAccessToken) {
+                await setSession(newAccessToken);
+                return;
+            }
+
+            sessionStorage.removeItem(JWT_ACCESS_STORAGE_KEY);
+            sessionStorage.removeItem(JWT_REFRESH_STORAGE_KEY);
             window.location.href = paths.auth.jwt.signIn;
         } catch (error) {
             console.error('Error during token expiration:', error);
-            throw error;
         }
     }, timeLeft);
+}
+
+// ----------------------------------------------------------------------
+
+export async function refreshAccessToken() {
+    try {
+        const refreshToken = sessionStorage.getItem(JWT_REFRESH_STORAGE_KEY);
+
+        if (!refreshToken) {
+            return null;
+        }
+
+        const res = await axios.post(endpoints.auth.refresh, { refresh: refreshToken });
+
+        return res.data?.access ?? null;
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        return null;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -72,11 +104,11 @@ export function tokenExpired(exp) {
 export async function setSession(accessToken) {
     try {
         if (accessToken) {
-            sessionStorage.setItem(JWT_STORAGE_KEY, accessToken);
+            sessionStorage.setItem(JWT_ACCESS_STORAGE_KEY, accessToken);
 
             axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
-            const decodedToken = jwtDecode(accessToken); // ~3 days by minimals server
+            const decodedToken = jwtDecode(accessToken);
 
             if (decodedToken && 'exp' in decodedToken) {
                 tokenExpired(decodedToken.exp);
@@ -84,7 +116,12 @@ export async function setSession(accessToken) {
                 throw new Error('Invalid access token!');
             }
         } else {
-            sessionStorage.removeItem(JWT_STORAGE_KEY);
+            if (expirationTimeoutId) {
+                clearTimeout(expirationTimeoutId);
+                expirationTimeoutId = undefined;
+            }
+
+            sessionStorage.removeItem(JWT_ACCESS_STORAGE_KEY);
             delete axios.defaults.headers.common.Authorization;
         }
     } catch (error) {

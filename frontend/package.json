@@ -1,7 +1,7 @@
 {
     "name": "@minimal-kit/starter-vite-js",
     "author": "Minimals",
-    "version": "7.7.0",
+    "version": "1.0.0",
     "description": "Vite Starter & JavaScript",
     "private": true,
     "type": "module",
