@@ -9,3 +9,5 @@ migrate:
 
 admin:
 	python3 manage.py createsuperuser
+
+# source .venv/bin/activate
