@@ -1,36 +1,12 @@
-from rest_framework import serializers, exceptions
+from rest_framework import serializers
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import Group, update_last_login
+from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.settings import api_settings
 from user.models import UserInvitation
 
 User = get_user_model()
 
-class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = 'email'
-
-    def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
-
-        user = User.objects.filter(email=email).first()
-
-        if user is None or not user.check_password(password) or not user.is_active:
-            raise exceptions.AuthenticationFailed('No active account found with the given credentials')
-
-        refresh = self.get_token(user)
-
-        if api_settings.UPDATE_LAST_LOGIN:
-            update_last_login(None, user)
-
-        return {
-            'refreshToken': str(refresh),
-            'accessToken': str(refresh.access_token),
-        }
-
-class SignUpSerializer(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     invite_code = serializers.CharField(required=False, write_only=True)
     group = serializers.ChoiceField(choices=['Administrator', 'Faculty', 'Guardian', 'Student'], write_only=True)
@@ -111,15 +87,8 @@ class GenerateInviteSerializer(serializers.ModelSerializer):
 
         return super().create(validated_data)
 
-class MeSerializer(serializers.ModelSerializer):
-    role = serializers.SerializerMethodField()
-
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'last_login', 'role', 'username', 'first_name', 'last_name', 'email']
-        read_only_fields = ['id', 'last_login', 'role']
-
-    def get_role(self, obj):
-        group = obj.groups.first()
-
-        return group.name if group else None
+        fields = ['id', 'last_login', 'username', 'first_name', 'last_name', 'email']
+        read_only_fields = ['id', 'last_login']
