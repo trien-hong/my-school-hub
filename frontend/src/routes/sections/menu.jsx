@@ -12,7 +12,8 @@ import { usePathname } from '../hooks';
 
 // ----------------------------------------------------------------------
 
-const IndexPage = lazy(() => import('src/pages/menus/one'));
+const DashboardPage = lazy(() => import('src/pages/menus/dashboard'));
+const ProfilePage = lazy(() => import('src/pages/menus/user/profile'));
 
 // ----------------------------------------------------------------------
 
@@ -25,18 +26,25 @@ function SuspenseOutlet() {
     );
 }
 
-const dashboardLayout = () => (
+const menuLayout = () => (
     <DashboardLayout>
         <SuspenseOutlet />
     </DashboardLayout>
 );
 
-export const dashboardRoutes = [
+export const menuRoutes = [
     {
-        path: 'dashboard',
-        element: CONFIG.auth.skip ? dashboardLayout() : <AuthGuard>{dashboardLayout()}</AuthGuard>,
+        path: '/dashboard',
+        element: CONFIG.auth.skip ? menuLayout() : <AuthGuard>{menuLayout()}</AuthGuard>,
         children: [
-            { element: <IndexPage />, index: true },
+            { element: <DashboardPage />, index: true },
+        ],
+    },
+    {
+        path: '/profile',
+        element: CONFIG.auth.skip ? menuLayout() : <AuthGuard>{menuLayout()}</AuthGuard>,
+        children: [
+            { element: <ProfilePage />, index: true },
         ],
     },
 ];

@@ -54,6 +54,19 @@ export const navData = [
                 icon: ICONS.dashboard,
                 info: <Label>BETA</Label>,
             },
-        ]
+        ],
     },
+    {
+        subheader: 'Management',
+        items: [
+            {
+                title: 'User',
+                path: paths.menu.user.profile,
+                icon: ICONS.user,
+                children: [
+                    { title: 'Profile', path: paths.menu.user.profile }
+                ],
+            },
+        ],
+    }
 ];

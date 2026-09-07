@@ -34,6 +34,16 @@ export function AccountDrawer({ data = [], sx, ...other }) {
 
     const { user } = useAuthContext();
 
+    const getInitials = () => {
+        if (user?.first_name && user?.last_name) {
+            return `${user.first_name.charAt(0)}${user.last_name.charAt(0)}`.toUpperCase();
+        }
+        if (user?.email) {
+            return user.email.charAt(0).toUpperCase();
+        }
+        return 'U';
+    };
+
     const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
     const renderAvatar = () => (
@@ -44,7 +54,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
             }}
         >
             <Avatar src={user?.photoURL} alt={user?.displayName} sx={{ width: 1, height: 1 }}>
-                {user?.first_name?.charAt(0).toUpperCase()}{user?.last_name?.charAt(0).toUpperCase()}
+                {getInitials()}
             </Avatar>
         </AnimateBorder>
     );
@@ -146,8 +156,6 @@ export function AccountDrawer({ data = [], sx, ...other }) {
                             flexDirection: 'column',
                         }}
                     >
-                        <Label>Last login: {fDateTime(user?.last_login)}</Label>
-
                         {renderAvatar()}
 
                         <Label sx={{ mt: 1 }}>{user?.role}</Label>
@@ -155,18 +163,15 @@ export function AccountDrawer({ data = [], sx, ...other }) {
                         <Typography variant="subtitle1" noWrap>
                             {user?.username}
                         </Typography>
-
-                        <Typography variant="body2" noWrap>
-                            {user?.email}
-                        </Typography>
                     </Box>
 
                     {renderList()}
                 </Scrollbar>
 
                 <Box sx={{ p: 2.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Label sx={{ width: 1, justifyContent: 'center', py: 3 }}>v{CONFIG.appVersion}</Label>
+                    <Label color="secondary" sx={{ width: 1, justifyContent: 'center', py: 3 }}>v{CONFIG.appVersion}</Label>
                     <SignOutButton onClose={onClose} />
+                    <Label color="primary" sx={{ width: 1, justifyContent: 'center', py: 3 }}>Last login: {fDateTime(user?.last_login)}</Label>
                 </Box>
             </Drawer>
         </>

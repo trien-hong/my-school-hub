@@ -4,7 +4,7 @@ import { Navigate } from 'react-router';
 import { CONFIG } from 'src/global-config';
 
 import { authRoutes } from './auth';
-import { dashboardRoutes } from './menu';
+import { menuRoutes } from './menu';
 
 // ----------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ export const routesSection = [
     ...authRoutes,
 
     // Menu
-    ...dashboardRoutes,
+    ...menuRoutes,
 
     // No match
     { path: '*', element: <Page404 /> },
