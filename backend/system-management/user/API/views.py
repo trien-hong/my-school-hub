@@ -4,8 +4,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import RegisterSerializer, GenerateInviteSerializer, ProfileSerializer
+from .serializers import EmailTokenObtainPairSerializer, SignUpSerializer, GenerateInviteSerializer, MeSerializer
+
+class EmailTokenObtainPairView(TokenObtainPairView):
+    serializer_class = EmailTokenObtainPairSerializer
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -23,13 +27,13 @@ class LogoutView(APIView):
         except TokenError:
             return Response({"error": "Invalid or expired refresh token."}, status=status.HTTP_400_BAD_REQUEST)
 
-class RegisterView(APIView):
+class SignUpView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         data = request.data
 
-        serializer = RegisterSerializer(data=data)
+        serializer = SignUpSerializer(data=data)
 
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
@@ -58,13 +62,13 @@ class GenerateInviteView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-class ProfileView(APIView):
+class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
 
-        serializer = ProfileSerializer(user)
+        serializer = MeSerializer(user)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -72,7 +76,7 @@ class ProfileView(APIView):
         data = request.data
         user = request.user
 
-        serializer = ProfileSerializer(user, data=data)
+        serializer = MeSerializer(user, data=data)
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -83,7 +87,7 @@ class ProfileView(APIView):
         data = request.data
         user = request.user
 
-        serializer = ProfileSerializer(user, data=data, partial=True)
+        serializer = MeSerializer(user, data=data, partial=True)
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
